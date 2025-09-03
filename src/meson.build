@@ -1,6 +1,7 @@
 tinydb_sources = files(
   'pager.cpp', 'storage.cpp', 'varint.cpp', 'record.cpp',
-  'btree.cpp', 'catalog.cpp', 'vm.cpp', 'parser.cpp', 'codegen.cpp', 'ast.cpp'
+  'btree.cpp', 'catalog.cpp', 'vm.cpp', 'parser.cpp', 'codegen.cpp', 'ast.cpp',
+  'repl.cpp', 'wasm_shim.cpp'
 )
 
 tinydb_lib = static_library('tinydb',
