@@ -1,3 +1,2 @@
-option('build_cli', type: 'boolean', value: false, description: 'Build command line interface')
-option('build_tests', type: 'boolean', value: false, description: 'Build test suite')
-option('build_tools', type: 'boolean', value: false, description: 'Build developer tools')
+option('sanitizers', type: 'boolean', value: true, description: 'Enable ASAN/UBSAN in Debug')
+

@@ -1,20 +1,20 @@
-gtest_dep = dependency('gtest', main: true, required: false)
+test_srcs = [
+  'pager_tests.cpp',
+  'varint_tests.cpp',
+  'record_tests.cpp',
+  'btree_tests.cpp',
+  'vm_tests.cpp',
+  'parser_tests.cpp',
+  'codegen_tests.cpp',
+  'integration_tests.cpp'
+]
 
-if gtest_dep.found()
-  tests = [
-    'pager_tests.cpp',
-    'varint_tests.cpp',
-    'record_tests.cpp',
-    'btree_tests.cpp',
-    'vm_tests.cpp',
-    'parser_tests.cpp',
-    'codegen_tests.cpp',
-    'integration_tests.cpp',
-  ]
+foreach t : test_srcs
+  name = t.split('.')[0]
+  exe = executable('test_' + name, t,
+    include_directories: inc,
+    dependencies: tinydb_dep
+  )
+  test(name, exe)
+endforeach
 
-  foreach t : tests
-    name = t.split('.')[0]
-    exe = executable(name, t, dependencies: [tinydb_dep, gtest_dep])
-    test(name, exe)
-  endforeach
-endif
