@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <string>
 #include <string_view>
-#include <vector>
 #include "tinydb/pager.hpp"
 
 namespace tinydb {
@@ -11,6 +11,7 @@ struct Key { int64_t rowid{0}; };
 class Cursor {
 public:
     uint32_t root{0};
+    uint32_t pgno{0};
     int idx{0};
 };
 
@@ -23,9 +24,11 @@ public:
     bool seek(Cursor& c, int64_t key);
     bool next(Cursor& c);
     std::string_view read_payload(const Cursor& c);
+    int64_t key(const Cursor& c);
+    bool check(uint32_t root);
 private:
     Pager& pager_;
-    std::vector<std::vector<std::pair<int64_t, std::string>>> mem_; // stub
+    std::string tmp_;
 };
 
 } // namespace tinydb
