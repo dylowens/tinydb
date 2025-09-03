@@ -20,6 +20,7 @@ public:
     bool create_table(const std::string& name, uint32_t root);
     uint32_t create_table(const std::string& name);
     const TableInfo* lookup(const std::string& name) const;
+    const std::unordered_map<std::string, TableInfo>& tables() const { return tables_; }
 private:
     Pager* pager_{nullptr};
     BTree* btree_{nullptr};
