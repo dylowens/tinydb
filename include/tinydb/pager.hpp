@@ -7,6 +7,10 @@
 
 namespace tinydb {
 
+// Avoid conflict with system/emscripten PAGE_SIZE macro (64 KiB)
+#ifdef PAGE_SIZE
+#undef PAGE_SIZE
+#endif
 constexpr uint32_t PAGE_SIZE = 4096;
 constexpr uint32_t HEADER_PGNO = 1;
 
