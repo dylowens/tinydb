@@ -1,11 +1,18 @@
+// Storage interface and file-backed implementation
 #pragma once
 #include <cstdint>
 #include <cstdio>
 #include <string>
-#include <vector>
-#include "tinydb/pager.hpp"
 
 namespace tinydb {
+
+class IStorage {
+public:
+    virtual ~IStorage() = default;
+    virtual void read(uint64_t off, void* buf, size_t n) = 0;
+    virtual void write(uint64_t off, const void* buf, size_t n) = 0;
+    virtual void sync() = 0;
+};
 
 class FileStorage : public IStorage {
 public:

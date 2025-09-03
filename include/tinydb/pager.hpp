@@ -2,21 +2,17 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
+#include "tinydb/storage.hpp"
 
 namespace tinydb {
 
+constexpr uint32_t PAGE_SIZE = 4096;
+
 struct Page {
     uint32_t no{};
-    std::array<uint8_t, 4096> data{};
+    std::array<uint8_t, PAGE_SIZE> data{};
     bool dirty{false};
-};
-
-class IStorage {
-public:
-    virtual ~IStorage() = default;
-    virtual void read(uint64_t off, void* buf, size_t n) = 0;
-    virtual void write(uint64_t off, const void* buf, size_t n) = 0;
-    virtual void sync() = 0;
 };
 
 class Pager {
@@ -28,7 +24,8 @@ public:
     void flush();
 private:
     std::unique_ptr<IStorage> storage_;
-    Page dummy_; // stub
+    std::unordered_map<uint32_t, std::unique_ptr<Page>> cache_;
+    uint32_t next_pgno_{1};
 };
 
 } // namespace tinydb
