@@ -18,6 +18,7 @@ public:
 class BTree {
 public:
     explicit BTree(Pager& p);
+    Pager& pager() { return pager_; }
     uint32_t create_table();
     void insert(uint32_t root, Key k, std::string_view payload);
     Cursor open(uint32_t root);

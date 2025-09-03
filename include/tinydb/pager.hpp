@@ -8,6 +8,7 @@
 namespace tinydb {
 
 constexpr uint32_t PAGE_SIZE = 4096;
+constexpr uint32_t HEADER_PGNO = 1;
 
 struct Page {
     uint32_t no{};
@@ -25,7 +26,7 @@ public:
 private:
     std::unique_ptr<IStorage> storage_;
     std::unordered_map<uint32_t, std::unique_ptr<Page>> cache_;
-    uint32_t next_pgno_{1};
+    uint32_t next_pgno_{2};
 };
 
 } // namespace tinydb

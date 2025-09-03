@@ -2,7 +2,31 @@
 
 namespace tinydb {
 
-Pager::Pager(std::unique_ptr<IStorage> s) : storage_(std::move(s)) {}
+namespace {
+static uint32_t read32(const uint8_t* p) {
+    return static_cast<uint32_t>(p[0]) |
+           static_cast<uint32_t>(p[1]) << 8 |
+           static_cast<uint32_t>(p[2]) << 16 |
+           static_cast<uint32_t>(p[3]) << 24;
+}
+
+static void write32(uint8_t* p, uint32_t v) {
+    p[0] = static_cast<uint8_t>(v & 0xFF);
+    p[1] = static_cast<uint8_t>((v >> 8) & 0xFF);
+    p[2] = static_cast<uint8_t>((v >> 16) & 0xFF);
+    p[3] = static_cast<uint8_t>((v >> 24) & 0xFF);
+}
+} // namespace
+
+Pager::Pager(std::unique_ptr<IStorage> s) : storage_(std::move(s)) {
+    auto header = std::make_unique<Page>();
+    header->no = HEADER_PGNO;
+    header->data.fill(0);
+    storage_->read(0, header->data.data(), PAGE_SIZE);
+    next_pgno_ = read32(header->data.data());
+    if (next_pgno_ < 2) next_pgno_ = 2;
+    cache_[HEADER_PGNO] = std::move(header);
+}
 
 Page& Pager::get(uint32_t pgno) {
     auto it = cache_.find(pgno);
@@ -14,7 +38,12 @@ Page& Pager::get(uint32_t pgno) {
                        page->data.data(), PAGE_SIZE);
         it = cache_.emplace(pgno, std::move(page)).first;
     }
-    if (pgno >= next_pgno_) next_pgno_ = pgno + 1;
+    if (pgno >= next_pgno_) {
+        next_pgno_ = pgno + 1;
+        Page& hdr = *cache_[HEADER_PGNO];
+        write32(hdr.data.data(), next_pgno_);
+        hdr.dirty = true;
+    }
     return *it->second;
 }
 
@@ -24,6 +53,9 @@ uint32_t Pager::alloc() {
     page->no = pgno;
     page->data.fill(0);
     cache_[pgno] = std::move(page);
+    Page& hdr = get(HEADER_PGNO);
+    write32(hdr.data.data(), next_pgno_);
+    mark_dirty(hdr);
     return pgno;
 }
 
