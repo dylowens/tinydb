@@ -33,6 +33,8 @@ int main() {
                 for (auto& kv : catalog->tables()) {
                     std::cout << kv.second.name << "\n";
                 }
+            } else if (line == ".quit" || line == ".exit") {
+                break;
             } else {
                 std::cout << "unknown command\n";
             }
@@ -43,11 +45,13 @@ int main() {
         if (!ast) { std::cout << "parse error\n"; continue; }
         if (auto c = dynamic_cast<ASTCreate*>(ast.get())) {
             catalog->create_table(c->table);
+            if (pager) pager->flush();
             std::cout << "ok\n";
             continue;
         }
         auto prog = codegen(*ast, *catalog);
         vm.run(prog);
+        if (pager) pager->flush();
         if (dynamic_cast<ASTSelect*>(ast.get())) {
             for (auto& row : vm.results()) {
                 for (size_t i = 0; i < row.size(); ++i) {
